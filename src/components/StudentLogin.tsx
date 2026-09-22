@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { KeyRound, User, Phone, ArrowLeft, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { Student } from '../types.ts';
-import { safeFetch } from '../lib/api.ts';
+import * as dataService from '../lib/dataService.ts';
 
 interface StudentLoginProps {
   onSuccess: (student: Student) => void;
@@ -19,22 +19,21 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({ onSuccess, onGoToTea
     e.preventDefault();
     setError(null);
 
-    if (!name.trim() || !phone.trim() || !code.trim()) {
+    const cleanName = name.trim();
+    const cleanPhone = phone.trim();
+    const cleanCode = code.trim();
+
+    if (!cleanName || !cleanPhone || !cleanCode) {
       setError('يرجى ملء جميع الحقول المطلوبة (الاسم، الهاتف، وكود التفعيل)');
       return;
     }
 
     setLoading(true);
     try {
-      const data = await safeFetch('/api/student/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), phone: phone.trim(), code: code.trim() }),
-      });
-
-      onSuccess(data.student);
+      const student = await dataService.studentLogin(cleanName, cleanPhone, cleanCode);
+      onSuccess(student);
     } catch (err: any) {
-      setError(err.message || 'حدث خطأ أثناء الاتصال بالخادم');
+      setError(err.message || 'حدث خطأ أثناء تسجيل الدخول، تأكد من صحة كود التفعيل');
     } finally {
       setLoading(false);
     }

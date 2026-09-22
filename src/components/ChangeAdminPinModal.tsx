@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, KeyRound, Eye, EyeOff, X, CheckCircle2, AlertCircle } from 'lucide-react';
-import { safeFetch } from '../lib/api.ts';
+import * as dataService from '../lib/dataService.ts';
 
 interface ChangeAdminPinModalProps {
   isOpen: boolean;
@@ -51,14 +51,7 @@ export const ChangeAdminPinModal: React.FC<ChangeAdminPinModalProps> = ({ isOpen
 
     setLoading(true);
     try {
-      await safeFetch('/api/admin/change-pin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          currentPin: cleanCurrent,
-          newPin: cleanNew,
-        }),
-      });
+      await dataService.changeAdminPin(cleanCurrent, cleanNew);
 
       setSuccessMsg('تم حفظ وتحديث كلمة مرور المشرف بنجاح! ستسري فوراً على جميع عمليات الدخول.');
       if (onSuccess) onSuccess();
