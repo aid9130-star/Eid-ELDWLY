@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Lock, ShieldCheck, Eye, EyeOff, X, ArrowLeft, KeyRound } from 'lucide-react';
 import { ChangeAdminPinModal } from './ChangeAdminPinModal.tsx';
+import { safeFetch } from '../lib/api.ts';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
@@ -28,18 +29,13 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
 
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/verify-pin', {
+      const data = await safeFetch('/api/admin/verify-pin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin: pin.trim() }),
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'رمز الدخول غير صحيح');
-      }
-
-      sessionStorage.setItem('tafawwoq_admin_auth', data.token);
+      sessionStorage.setItem('tafawwoq_admin_auth', data.token || 'authenticated');
       onSuccess();
       onClose();
     } catch (err: any) {

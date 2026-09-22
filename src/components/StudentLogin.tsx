@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { KeyRound, User, Phone, ArrowLeft, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { Student } from '../types.ts';
+import { safeFetch } from '../lib/api.ts';
 
 interface StudentLoginProps {
   onSuccess: (student: Student) => void;
@@ -25,20 +26,15 @@ export const StudentLogin: React.FC<StudentLoginProps> = ({ onSuccess, onGoToTea
 
     setLoading(true);
     try {
-      const res = await fetch('/api/student/login', {
+      const data = await safeFetch('/api/student/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim(), phone: phone.trim(), code: code.trim() }),
       });
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'فشل تسجيل الدخول');
-      }
 
       onSuccess(data.student);
     } catch (err: any) {
-      setError(err.message || 'حدث خطأ أثناء الاتصال بقاعدة البيانات');
+      setError(err.message || 'حدث خطأ أثناء الاتصال بالخادم');
     } finally {
       setLoading(false);
     }
